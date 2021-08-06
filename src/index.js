@@ -1,3 +1,4 @@
+require('dotenv').config()
 const path = require('path')
 const { app, BrowserWindow, ipcMain } = require('electron')
 
@@ -7,6 +8,24 @@ global.ipcMain = ipcMain
 
 const preloadpath = path.join(__dirname, 'preload.js')
 console.log(`preloadpath=${preloadpath}`)
+const pkcs12Path = process.env.PKCS12_PATH
+const pkcs12Pass = process.env.PKCS12_PASS
+console.log(`pkcs12Path=${pkcs12Path}`)
+console.log(`pkcs12Pass=${pkcs12Pass}`)
+
+// app.importCertificate({
+//   certificate: pkcs12Path,
+//   password: pkcs12Pass
+// }, result => {
+//   console.log(`importCertificate result ${result}`)
+// })
+
+app.on('select-client-certificate', (event, webContents, url, list, callback) => {
+  event.preventDefault()
+  console.dir({ list })
+  callback(list[0])
+})
+
 app.whenReady().then(() => {
   const win = new BrowserWindow({
     width: 400,

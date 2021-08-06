@@ -1,36 +1,35 @@
 const path = require('path')
-const { app, BrowserWindow, ipcMain, contextBridge } = require('electron')
+const { app, BrowserWindow, ipcMain } = require('electron')
 
-const text = "text"
-const printText = () => console.log(`out ${text}`)
-contextBridge.exposeInMainWorld('myAPI', {
-  doAThing: () => {
-    console.log(`inner ${text}`)
-    printText()
-  }
-})
+global.app = app
+global.BrowserWindow = BrowserWindow
+global.ipcMain = ipcMain
 
-ipcMain.handle('hello', () => "world")
-
-ipcMain.handle('dark-mode:system', () => {
-  nativeTheme.themeSource = 'system'
-})
-}
-
+const preloadpath = path.join(__dirname, 'preload.js')
+console.log(`preloadpath=${preloadpath}`)
 app.whenReady().then(() => {
   const win = new BrowserWindow({
+    width: 400,
+    height: 300,
     webPreferences: {
-      preload: path.join(__dirname, 'preload.js')
-    },
-    width: 800,
-    height: 600
+      preload: preloadpath
+    }
   })
 
-  win.loadURL('https://cav.receita.fazenda.gov.br/autenticacao/login')
+  // win.loadURL('https://cav.receita.fazenda.gov.br/autenticacao/login')
+  win.loadFile(path.join(__dirname, 'index.html'))
 })
 
-app.on('window-all-closed', () => {
-  if (process.platform !== 'darwin') {
-    app.quit()
-  }
-})
+// ipcMain.on('dark-mode:toggle', () => {
+//   // a
+// })
+
+// app.on('select-client-certificate', (event, webContents, url, list, callback) => {
+//   event.preventDefault()
+//   console.dir({ event, webContents, url, list })
+
+//   // escolhe o
+//   callback(list[0])
+// })
+
+// app.commandLine.appendSwitch('client-certificate', path.join(__dirname, 'cert', 'orgamec.p12'))
